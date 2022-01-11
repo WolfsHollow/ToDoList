@@ -18,6 +18,9 @@ const newTaskDescription = document.getElementById('description');
 const newTaskDate = document.getElementById('date');
 const newTaskNotes = document.getElementById('notes');
 const newTaskPriority = document.getElementById('priority');
+const addNewProjectButton = document.createElement('div');
+let isFormActive = false;
+const addNewTaskButton = document.createElement('div');
 
 const projectWrapper = setupNav();
 
@@ -26,6 +29,11 @@ title.classList.add('title');
 contentWrapper.classList.add('contentWrapper');
 navWrapper.classList.add('navWrapper');
 listWrapper.classList.add('listWrapper');
+
+addNewProjectButton.classList.add('addButton');
+addNewProjectButton.addEventListener('click', (x)=>{addProjectNav(x)});
+addNewTaskButton.classList.add('addButton');
+addNewTaskButton.addEventListener('click', (x) => {addNewTask(x)});
 
 page.append(newTaskScreen, title, contentWrapper);
 contentWrapper.append(navWrapper, listWrapper);
@@ -85,17 +93,10 @@ function setupNav(){
 
     projectWrapper.textContent = 'Projects';
 
-    // const defaultProject = new Project('Default', 'Default Project', null,null);
-    // const nextProject = new Project('nextProj', `it's the next project`, null, null);
+    projectWrapper.appendChild(addNewProjectButton);  
+    listWrapper.appendChild(addNewTaskButton);
     
-    projectWrapper.textContent = 'Projects';    
-    const addNewTaskButton = document.createElement('div');
-    addNewTaskButton.classList.add('addTask');
-    addNewTaskButton.addEventListener('click', (x)=>{addNewTask(x)});
-  
-    projectWrapper.appendChild(addNewTaskButton);  
     return projectWrapper;
-
 }
 
 function changePage(node){
@@ -136,11 +137,30 @@ function addNewTask(){
       newTaskScreen.classList.remove('show');
     }
     else {newTaskScreen.classList.add('show');}
-  }
+}
   
 function addProjectNav(target){
-    let newProjectInput = document.createElement('input');
-    projectWrapper.appendChild(newProjectInput);
+    if (isFormActive == false){
+        isFormActive = true;
+        let newProjectForm = document.createElement('form');
+        let newProjectInput = document.createElement('input');
+        newProjectForm.onsubmit = () => {createNewProject(newProjectInput.value)
+                                        projectWrapper.removeChild(newProjectForm);
+                                        projectWrapper.removeChild(addNewProjectButton);
+                                        projectWrapper.appendChild(addNewProjectButton);
+                                        isFormActive = false;
+                                        return false};
+        projectWrapper.appendChild(newProjectForm);
+        newProjectForm.appendChild(newProjectInput);
+    }    
+}
+
+function createNewProject(value){
+
+    let newProjectNavDiv = document.createElement('div');
+    newProjectNavDiv.innerText = value;
+    newProjectNavDiv.classList.add('navProjectDiv');
+    projectWrapper.appendChild(newProjectNavDiv);
 }
 
 function createNewTask(){
@@ -150,6 +170,9 @@ function createNewTask(){
                                 newTaskNotes.value,
                                 newTaskPriority.value);
     let newDiv = addNewTaskDiv(newTask)
+    newTaskScreen.classList.remove('show');
     currentProject.push(newDiv);
     listWrapper.appendChild(newDiv);
+    listWrapper.removeChild(addNewTaskButton);
+    listWrapper.appendChild(addNewTaskButton);
 }
