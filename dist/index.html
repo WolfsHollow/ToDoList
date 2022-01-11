@@ -6,6 +6,34 @@
   </head>
   <body>
     <div id='content'></div>
+    <form id='newTaskScreen' class='newTaskScreen'>
+      <fieldset>
+        <legend>New Task Information</legend>
+        <div class='inputGroup'>
+          <label for 'name'>Name <input type='text' name='name' id='name' placeholder = 'Name'></label>           
+        </div>
+        <div class='inputGroup'>
+          <label for 'name'>Description <input type='text' name='description' id='description' placeholder = 'Description'>
+          </label> 
+        </div>
+        <div class='inputGroup'>
+          <label for 'date'>Date <input type='date' name='date' id='date'></label>
+        </div>
+        <div class='inputGroup'>
+          <label for 'notes'>Notes <textarea name='notes' id='notes' placeholder='Notes' rows='1'></textarea></label> 
+        </div>
+        <div class='inputGroup'>
+          <label for 'priority'>Priority 
+          <select id='priority' name='priority'>
+              <option>Neutral</option>
+              <option>Low</option>
+              <option>Medium</option>
+              <option>High</option>
+          </select></label>              
+        </div>
+        <input type='button' id='taskSubmitButton' class='submit' value='Submit'></b>
+      </fieldset>
+    </form>
     <script src = 'bundle.js'></script>
   </body>
 </html>

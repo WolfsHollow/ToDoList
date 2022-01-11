@@ -76,16 +76,105 @@
 
 /* Project div */
 
-divWrapper{
-    height: 500px;
-    width: 1500px;
+.divWrapper{
+  height: 100px;
+  width: 100%;
+  display: flex; 
+  flex-flow: row;
+  align-items: center;
+  justify-content: center;
+  background-color: grey;
+  border: 2px solid green;
 }
 
 .nameDiv,
 .descriptionDiv,
 .priorityDiv,
+.dateDiv,
 .dueDateDiv{
-    background-color: blue;
-    color: white;
-    font-size: 5rem;
+  color: white;
+  font-size: 2rem;
+  height: 80px;
+  widtH: 500px;
+  border: 2px solid white;
+  text-align: center;
+  line-height: 80px;
+}
+
+.addTask{
+  width: 40px;
+  height: 40px;
+  border-radius: 25px;
+  background-color: white;
+  color: black;
+}
+
+.addTask:hover {
+  background-color: green;
+}
+
+.newTaskScreen {
+  display: none;
+  position: fixed;
+  top: 10%;
+  left: 18%;
+  right: 0;
+  bottom: 0;  
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 5rem;
+  flex-direction: column;
+}
+
+fieldset{
+  background-color: grey;
+}
+
+.show {
+  display: flex;
+}
+
+.newTaskScreen.show {
+  display:flex;
+}
+
+.wrapper{
+  height: 150px;
+  width: 150px;
+  border: 2px solid black;
+  justify-content: center;
+  align-items: center;
+}
+
+input[type=text] {
+  width: 100px;
+  -webkit-transition: width .35s ease-in-out;
+  transition: width .35s ease-in-out;
+}
+input[type=text]:focus {
+  width: 250px;
+}
+
+.submit {
+  font-size: 1rem;
+  color: black;
+  height: 50px;
+  width: 350px;
+}
+
+label {
+  color: white;
+  font-size: 2rem;
+}
+
+legend {
+    background-color: #000;
+    color: #fff;
+    padding: 3px 6px;
+    font-size: 3rem;
+}
+
+.inputGroup{
+  margin-left: 15%;   
 }
