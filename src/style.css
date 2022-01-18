@@ -80,6 +80,11 @@
     font-size: 2rem;
     height: 30px;
 }
+
+.navProjectDiv:hover{
+  background-color: blue;
+}
+
 /* Project div */
 
 .divWrapper{

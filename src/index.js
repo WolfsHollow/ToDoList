@@ -24,26 +24,7 @@ const addNewTaskButton = document.createElement('div');
 
 const projectWrapper = setupNav();
 
-page.classList.add('page');
-title.classList.add('title');
-contentWrapper.classList.add('contentWrapper');
-navWrapper.classList.add('navWrapper');
-listWrapper.classList.add('listWrapper');
-
-addNewProjectButton.classList.add('addButton');
-addNewProjectButton.addEventListener('click', (x)=>{addProjectNav(x)});
-addNewTaskButton.classList.add('addButton');
-addNewTaskButton.addEventListener('click', (x) => {addNewTask(x)});
-
-page.append(newTaskScreen, title, contentWrapper);
-contentWrapper.append(navWrapper, listWrapper);
-
-title.textContent = 'To Do List';
-
-let defaultProject = [];
-
-let projectArray = [defaultProject];
-let currentProject = [defaultProject];
+const dummyDiv = document.createElement('div');
 
 class Task{
     constructor(name, description, dueDate, notes, priority){
@@ -62,13 +43,84 @@ class Task{
     }
 }
 
+class Project{
+    constructor(name){
+        this.name = name;
+        this.taskDivList = [];
+    }
+
+    addTask(task){
+        this.taskDivList.push(task);
+    }
+    populateTasks(){
+        let list = this.taskDivList
+        
+        while (listWrapper.firstChild){
+            listWrapper.removeChild(listWrapper.firstChild);
+        }
+
+        for (let i=0; i< list.length; i++){
+            listWrapper.appendChild(list[i]);
+        }
+        listWrapper.appendChild(addNewTaskButton);
+    }
+    getTaskList(){
+        return this.taskDivList;
+    }
+}
+let projectArray = [];
+let currentProject = [];
+
+createNewProject('default');
+createNewProject('default2');
+console.log(projectArray);
+
+function dummyTaskList(){
+    let newTask = new Task('default', 'this is a description', '02/22/22', 'notes', 'high');
+    let newTask2 = new Task('default2', 'this is a description', '02/22/23', 'notes', 'high');
+    let newDiv = addNewTaskDiv(newTask);
+    projectArray[0].addTask(newDiv);
+    newDiv = addNewTaskDiv(newTask2);
+    projectArray[0].addTask(newDiv);
+    projectArray[0].populateTasks();
+}
+
+function dummyTaskList2(){
+    let newTask = new Task('d', 'this is a description', '01/1/11', 'notes', 'high');
+    let newTask2 = new Task('d2', 'this is a description', '02/22/23', 'notes', 'high');
+    let newDiv = addNewTaskDiv(newTask);
+    projectArray[1].addTask(newDiv);
+    newDiv = addNewTaskDiv(newTask2);
+    projectArray[1].addTask(newDiv);
+    projectArray[1].populateTasks();
+}
+
+dummyTaskList();
+dummyTaskList2();
+
+page.classList.add('page');
+title.classList.add('title');
+contentWrapper.classList.add('contentWrapper');
+navWrapper.classList.add('navWrapper');
+listWrapper.classList.add('listWrapper');
+
+addNewProjectButton.classList.add('addButton');
+addNewProjectButton.addEventListener('click', (x)=>{addProjectNav(x)});
+addNewTaskButton.classList.add('addButton');
+addNewTaskButton.addEventListener('click', (x) => {addNewTask(x)});
+
+page.append(newTaskScreen, title, contentWrapper);
+contentWrapper.append(navWrapper, listWrapper);
+
+title.textContent = 'To Do List';
+
 function setupNav(){
     
     const navButtonsWrapper = document.createElement('div');
         const inbox = document.createElement('div');
         const today = document.createElement('div');
-        const week = document.createElement('div');    
-    const projectWrapper = document.createElement('div');
+        const week = document.createElement('div');   
+    const projectWrapper = document.createElement('div'); 
 
     navButtonsWrapper.classList.add('navButtonsWrapper');
     inbox.classList.add('navButton');
@@ -144,7 +196,7 @@ function addProjectNav(target){
         isFormActive = true;
         let newProjectForm = document.createElement('form');
         let newProjectInput = document.createElement('input');
-        newProjectForm.onsubmit = () => {createNewProject(newProjectInput.value)
+        newProjectForm.onsubmit = () => {createNewProject(newProjectInput.value);
                                         projectWrapper.removeChild(newProjectForm);
                                         projectWrapper.removeChild(addNewProjectButton);
                                         projectWrapper.appendChild(addNewProjectButton);
@@ -156,9 +208,19 @@ function addProjectNav(target){
 }
 
 function createNewProject(value){
-
+    let newProject = new Project(value);
+    if (projectArray == ''){
+        currentProject = newProject;
+    }
+    projectArray.push(newProject);
     let newProjectNavDiv = document.createElement('div');
     newProjectNavDiv.innerText = value;
+    newProjectNavDiv.value = 'test value';
+    newProjectNavDiv.project = newProject;
+    newProjectNavDiv.addEventListener('click', (e)=>{ let divProject = e.target.project;
+                                                      currentProject = divProject;
+                                                      divProject.populateTasks();
+                                                      });
     newProjectNavDiv.classList.add('navProjectDiv');
     projectWrapper.appendChild(newProjectNavDiv);
 }
@@ -167,11 +229,13 @@ function createNewTask(){
     let newTask = new Task(newTaskName.value, 
                                 newTaskDescription.value,
                                 newTaskDate.value,
+
                                 newTaskNotes.value,
                                 newTaskPriority.value);
     let newDiv = addNewTaskDiv(newTask)
     newTaskScreen.classList.remove('show');
-    currentProject.push(newDiv);
+    console.log(currentProject);
+    currentProject.addTask(newDiv);
     listWrapper.appendChild(newDiv);
     listWrapper.removeChild(addNewTaskButton);
     listWrapper.appendChild(addNewTaskButton);
