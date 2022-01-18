@@ -2,6 +2,17 @@ import './style.css';
 import createClassDiv from './project.js';
 import { eachDayOfIntervalWithOptions } from 'date-fns/fp';
 
+//To do list:
+// *******5. Local storage
+// 1. resize task divs
+// 2. add a remove task button
+// 3. make tasks editable 
+// 4. sort by date/name (inbox/today/this week as well)
+// 6. Make it look nice
+// 7. be able to check items off
+
+//#region Initialize global variables, DOM stuff, and buttons; set up nav
+
 const page = document.getElementById('content');
 
 const title = document.createElement('div');
@@ -24,7 +35,7 @@ const addNewTaskButton = document.createElement('div');
 
 const projectWrapper = setupNav();
 
-const dummyDiv = document.createElement('div');
+//#endregion
 
 class Task{
     constructor(name, description, dueDate, notes, priority){
@@ -72,31 +83,6 @@ let projectArray = [];
 let currentProject = [];
 
 createNewProject('default');
-createNewProject('default2');
-console.log(projectArray);
-
-function dummyTaskList(){
-    let newTask = new Task('default', 'this is a description', '02/22/22', 'notes', 'high');
-    let newTask2 = new Task('default2', 'this is a description', '02/22/23', 'notes', 'high');
-    let newDiv = addNewTaskDiv(newTask);
-    projectArray[0].addTask(newDiv);
-    newDiv = addNewTaskDiv(newTask2);
-    projectArray[0].addTask(newDiv);
-    projectArray[0].populateTasks();
-}
-
-function dummyTaskList2(){
-    let newTask = new Task('d', 'this is a description', '01/1/11', 'notes', 'high');
-    let newTask2 = new Task('d2', 'this is a description', '02/22/23', 'notes', 'high');
-    let newDiv = addNewTaskDiv(newTask);
-    projectArray[1].addTask(newDiv);
-    newDiv = addNewTaskDiv(newTask2);
-    projectArray[1].addTask(newDiv);
-    projectArray[1].populateTasks();
-}
-
-dummyTaskList();
-dummyTaskList2();
 
 page.classList.add('page');
 title.classList.add('title');
@@ -114,7 +100,7 @@ contentWrapper.append(navWrapper, listWrapper);
 
 title.textContent = 'To Do List';
 
-function setupNav(){
+function setupNav(){ // sets up navigation panel on the left and adds AddNew buttons
     
     const navButtonsWrapper = document.createElement('div');
         const inbox = document.createElement('div');
@@ -155,7 +141,7 @@ function changePage(node){
     console.log('hello this works');
 }
 
-function addNewTaskDiv(classObject){
+function addNewTaskDiv(classObject){ // creates div for task defined by input
     let newDivWrapper = document.createElement('div');
     let nameDiv = document.createElement('div');
     let descriptionDiv = document.createElement('div');
@@ -183,7 +169,7 @@ function addNewTaskDiv(classObject){
     return newDivWrapper;
 }
 
-function addNewTask(){
+function addNewTask(){ // brings up form to create new task
     let classTask = newTaskScreen.classList;
     if (classTask.contains('show')){  
       newTaskScreen.classList.remove('show');
@@ -191,7 +177,7 @@ function addNewTask(){
     else {newTaskScreen.classList.add('show');}
 }
   
-function addProjectNav(target){
+function addProjectNav(target){ // brings up form to create new project and creates it
     if (isFormActive == false){
         isFormActive = true;
         let newProjectForm = document.createElement('form');
@@ -207,7 +193,7 @@ function addProjectNav(target){
     }    
 }
 
-function createNewProject(value){
+function createNewProject(value){ // makes new project from input and adds click event
     let newProject = new Project(value);
     if (projectArray == ''){
         currentProject = newProject;
@@ -222,10 +208,12 @@ function createNewProject(value){
                                                       divProject.populateTasks();
                                                       });
     newProjectNavDiv.classList.add('navProjectDiv');
+    projectWrapper.removeChild(addNewProjectButton);
     projectWrapper.appendChild(newProjectNavDiv);
+    projectWrapper.appendChild(addNewProjectButton);
 }
 
-function createNewTask(){
+function createNewTask(){ 
     let newTask = new Task(newTaskName.value, 
                                 newTaskDescription.value,
                                 newTaskDate.value,
