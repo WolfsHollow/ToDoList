@@ -82,8 +82,6 @@ class Project{
 let projectArray = [];
 let currentProject = [];
 
-createNewProject('default');
-
 page.classList.add('page');
 title.classList.add('title');
 contentWrapper.classList.add('contentWrapper');
@@ -99,6 +97,43 @@ page.append(newTaskScreen, title, contentWrapper);
 contentWrapper.append(navWrapper, listWrapper);
 
 title.textContent = 'To Do List';
+
+// local storage check
+if (localStorage.length == 0){
+    // load as normal
+    console.log('aint nothing here chief');
+    createNewProject('default');
+}
+else {
+    // localStorage.clear();
+
+    let JSON_ProjectArray = JSON.parse(localStorage.projectArray);
+    console.log(JSON_ProjectArray);
+    projectArray = projectStringToObject(JSON_ProjectArray);
+    console.log(projectArray);
+    populateProjects(projectArray);
+}
+
+function projectStringToObject(JSONArray){
+    let length = JSONArray.length;
+
+    for (let i = 0; i < length; i++){
+        JSONArray[i] = Object.setPrototypeOf(JSONArray[i],Project);    
+        console.log(JSONArray[i].name);
+        console.log(JSONArray[i].taskDivList);
+    }
+    return JSONArray;
+}
+
+function clearLocalStorage(){
+    console.log(localStorage);
+    localStorage.setItem('bgcolor', 'red');
+    localStorage.setItem('font', 'Helvetica');
+    localStorage.setItem('image', 'miGato.png');
+    console.log(localStorage);
+    localStorage.clear();
+    console.log(localStorage);
+}
 
 function setupNav(){ // sets up navigation panel on the left and adds AddNew buttons
     
@@ -195,10 +230,17 @@ function addProjectNav(target){ // brings up form to create new project and crea
 
 function createNewProject(value){ // makes new project from input and adds click event
     let newProject = new Project(value);
-    if (projectArray == ''){
-        currentProject = newProject;
-    }
+    // if (projectArray == ''){
+    //     currentProject = newProject;
+    // }
+
+    currentProject = newProject;
+
     projectArray.push(newProject);
+    localStorage.setItem('projectArray', JSON.stringify(projectArray));
+    console.log('added to storage');
+    console.log(localStorage.projectArray);
+
     let newProjectNavDiv = document.createElement('div');
     newProjectNavDiv.innerText = value;
     newProjectNavDiv.value = 'test value';
@@ -213,13 +255,36 @@ function createNewProject(value){ // makes new project from input and adds click
     projectWrapper.appendChild(addNewProjectButton);
 }
 
+function populateProjects(projectArray){
+
+    let projLength = projectArray.length;
+
+    for (let i = 0; i < projLength; i++){
+        let newProjectNavDiv = document.createElement('div');
+
+        newProjectNavDiv.innerText = projectArray[i].name
+        newProjectNavDiv.value = 'test value';
+        newProjectNavDiv.project = projectArray[i];
+        newProjectNavDiv.addEventListener('click', (e)=>{  
+                                                        let divProject = e.target.project;
+                                                        currentProject = divProject;
+                                                        console.log(currentProject);
+                                                        // currentProject.populateTasks();
+                                                        });
+        newProjectNavDiv.classList.add('navProjectDiv');
+        projectWrapper.removeChild(addNewProjectButton);
+        projectWrapper.appendChild(newProjectNavDiv);
+        projectWrapper.appendChild(addNewProjectButton);
+    }
+    
+}
+
 function createNewTask(){ 
     let newTask = new Task(newTaskName.value, 
-                                newTaskDescription.value,
-                                newTaskDate.value,
-
-                                newTaskNotes.value,
-                                newTaskPriority.value);
+                            newTaskDescription.value,
+                            newTaskDate.value,
+                            newTaskNotes.value,
+                            newTaskPriority.value);
     let newDiv = addNewTaskDiv(newTask)
     newTaskScreen.classList.remove('show');
     console.log(currentProject);
