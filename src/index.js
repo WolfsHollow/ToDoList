@@ -44,6 +44,11 @@ class Task{
         this.dueDate = dueDate;
         this.notes = notes;
         this.priority = priority;
+        this.div = null;
+    }
+
+    toJSON(){
+        return this;
     }
 
     get projectNode(){
@@ -57,30 +62,40 @@ class Task{
 class Project{
     constructor(name){
         this.name = name;
+        this.taskObjList = [];
         this.taskDivList = [];
     }
 
-    addTask(task){
+    // print(){
+    //     console.log('hello world');
+    // }
+
+    toJSON(){
+        return this;
+    }
+
+    addTaskDiv(task){
         this.taskDivList.push(task);
     }
-    populateTasks(){
-        let list = this.taskDivList
+    addTaskObj(task){
+        this.taskObjList.push(task);
+    }
+    populateTaskDivs(){
+        let list = this.taskDivList;
         
+        console.log(`the list is`);
+        console.log(list);
         while (listWrapper.firstChild){
             listWrapper.removeChild(listWrapper.firstChild);
         }
-
         for (let i=0; i< list.length; i++){
             listWrapper.appendChild(list[i]);
         }
         listWrapper.appendChild(addNewTaskButton);
     }
-    getTaskList(){
-        return this.taskDivList;
-    }
 }
 let projectArray = [];
-let currentProject = [];
+let currentProject = null;
 
 page.classList.add('page');
 title.classList.add('title');
@@ -108,31 +123,38 @@ else {
     // localStorage.clear();
 
     let JSON_ProjectArray = JSON.parse(localStorage.projectArray);
-    console.log(JSON_ProjectArray);
+    // console.log(JSON_ProjectArray);
     projectArray = projectStringToObject(JSON_ProjectArray);
-    console.log(projectArray);
+    currentProject = projectArray[0];
+    // console.log(`current json Project is`);
+    // console.log(currentProject);
+    // console.log(projectArray[0].print());
+    // console.log(projectArray);
     populateProjects(projectArray);
+
 }
 
 function projectStringToObject(JSONArray){
     let length = JSONArray.length;
-
+    let taskLength, objList;
+    let htmlList =[];
     for (let i = 0; i < length; i++){
-        JSONArray[i] = Object.setPrototypeOf(JSONArray[i],Project);    
+        JSONArray[i] = Object.setPrototypeOf(JSONArray[i], Project.prototype); 
+        objList = JSONArray[i].taskObjList;
+        taskLength = objList.length;
+        console.log(`task list below`, objList)
+        // console.log(`populating`);
+        for (let j = 0; j< taskLength; j++){
+            objList[j] = Object.setPrototypeOf(objList[j], Task.prototype);
+            htmlList.push(objList[j].div); // get html into an array to create new divs for
+            // console.log(`index ${i} ${j}`);
+        }        
+        console.log(JSONArray[i]);
+        JSONArray[i].taskDivList = populateTaskDivList(htmlList); // repopulate taskDivList for class object  
         console.log(JSONArray[i].name);
-        console.log(JSONArray[i].taskDivList);
+        console.log(JSONArray[i].taskObjList);        
     }
     return JSONArray;
-}
-
-function clearLocalStorage(){
-    console.log(localStorage);
-    localStorage.setItem('bgcolor', 'red');
-    localStorage.setItem('font', 'Helvetica');
-    localStorage.setItem('image', 'miGato.png');
-    console.log(localStorage);
-    localStorage.clear();
-    console.log(localStorage);
 }
 
 function setupNav(){ // sets up navigation panel on the left and adds AddNew buttons
@@ -247,7 +269,7 @@ function createNewProject(value){ // makes new project from input and adds click
     newProjectNavDiv.project = newProject;
     newProjectNavDiv.addEventListener('click', (e)=>{ let divProject = e.target.project;
                                                       currentProject = divProject;
-                                                      divProject.populateTasks();
+                                                      divProject.populateTaskDivs();
                                                       });
     newProjectNavDiv.classList.add('navProjectDiv');
     projectWrapper.removeChild(addNewProjectButton);
@@ -269,14 +291,34 @@ function populateProjects(projectArray){
                                                         let divProject = e.target.project;
                                                         currentProject = divProject;
                                                         console.log(currentProject);
-                                                        // currentProject.populateTasks();
+                                                        currentProject.populateTaskDivs();
                                                         });
         newProjectNavDiv.classList.add('navProjectDiv');
         projectWrapper.removeChild(addNewProjectButton);
         projectWrapper.appendChild(newProjectNavDiv);
         projectWrapper.appendChild(addNewProjectButton);
+    }    
+}
+
+function populateTaskDivList(outerHTMLArray){
+    let newDivArray = [];
+    let newDiv;
+    let length = outerHTMLArray.length;
+    // console.log('outerhtml array is');
+    // console.log(outerHTMLArray);
+    let newDivWrapper = document.createElement('div');
+    console.log(`populating`);
+    for (let i = 0; i< length; i++){
+        newDiv = document.createElement('div');
+        newDivWrapper.appendChild(newDiv);
+        newDivWrapper.children[i].outerHTML = outerHTMLArray[i];
+        // console.log(`outerhtml is`, newDivWrapper.children[i].outerHTML);
+        // console.log(`the ${i}-th child of the wrapper is`, newDivWrapper.children[i]);
+        newDivArray.push(newDivWrapper.children[i]);
+        console.log(`index ${i}`);
     }
-    
+    // console.log(`the new div array is`, newDivArray);
+    return newDivArray;    
 }
 
 function createNewTask(){ 
@@ -286,9 +328,14 @@ function createNewTask(){
                             newTaskNotes.value,
                             newTaskPriority.value);
     let newDiv = addNewTaskDiv(newTask)
+    newTask.div = newDiv.outerHTML;
     newTaskScreen.classList.remove('show');
+    currentProject.addTaskObj(newTask);
+    currentProject.addTaskDiv(newDiv); 
+    console.log(`currentproject taskdivlist is`, currentProject.taskDivList);
+    localStorage.setItem('projectArray', JSON.stringify(projectArray));
+    console.log(`current project is`)
     console.log(currentProject);
-    currentProject.addTask(newDiv);
     listWrapper.appendChild(newDiv);
     listWrapper.removeChild(addNewTaskButton);
     listWrapper.appendChild(addNewTaskButton);
