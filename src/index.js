@@ -3,7 +3,6 @@ import createClassDiv from './project.js';
 import { eachDayOfIntervalWithOptions } from 'date-fns/fp';
 
 //To do list:
-// *******5. Local storage
 // 1. resize task divs
 // 2. add a remove task button
 // 3. make tasks editable 
@@ -66,10 +65,6 @@ class Project{
         this.taskDivList = [];
     }
 
-    // print(){
-    //     console.log('hello world');
-    // }
-
     toJSON(){
         return this;
     }
@@ -82,9 +77,7 @@ class Project{
     }
     populateTaskDivs(){
         let list = this.taskDivList;
-        
-        console.log(`the list is`);
-        console.log(list);
+            
         while (listWrapper.firstChild){
             listWrapper.removeChild(listWrapper.firstChild);
         }
@@ -123,36 +116,25 @@ else {
     // localStorage.clear();
 
     let JSON_ProjectArray = JSON.parse(localStorage.projectArray);
-    // console.log(JSON_ProjectArray);
     projectArray = projectStringToObject(JSON_ProjectArray);
     currentProject = projectArray[0];
-    // console.log(`current json Project is`);
-    // console.log(currentProject);
-    // console.log(projectArray[0].print());
-    // console.log(projectArray);
     populateProjects(projectArray);
 
 }
 
 function projectStringToObject(JSONArray){
     let length = JSONArray.length;
-    let taskLength, objList;
-    let htmlList =[];
+    let taskLength, taskList, htmlList;    
     for (let i = 0; i < length; i++){
+        htmlList =[];
         JSONArray[i] = Object.setPrototypeOf(JSONArray[i], Project.prototype); 
-        objList = JSONArray[i].taskObjList;
-        taskLength = objList.length;
-        console.log(`task list below`, objList)
-        // console.log(`populating`);
+        taskList = JSONArray[i].taskObjList;
+        taskLength = taskList.length;
         for (let j = 0; j< taskLength; j++){
-            objList[j] = Object.setPrototypeOf(objList[j], Task.prototype);
-            htmlList.push(objList[j].div); // get html into an array to create new divs for
-            // console.log(`index ${i} ${j}`);
+            taskList[j] = Object.setPrototypeOf(taskList[j], Task.prototype);
+            htmlList.push(taskList[j].div); // get html into an array to create new divs for
         }        
-        console.log(JSONArray[i]);
         JSONArray[i].taskDivList = populateTaskDivList(htmlList); // repopulate taskDivList for class object  
-        console.log(JSONArray[i].name);
-        console.log(JSONArray[i].taskObjList);        
     }
     return JSONArray;
 }
@@ -260,8 +242,6 @@ function createNewProject(value){ // makes new project from input and adds click
 
     projectArray.push(newProject);
     localStorage.setItem('projectArray', JSON.stringify(projectArray));
-    console.log('added to storage');
-    console.log(localStorage.projectArray);
 
     let newProjectNavDiv = document.createElement('div');
     newProjectNavDiv.innerText = value;
@@ -290,7 +270,6 @@ function populateProjects(projectArray){
         newProjectNavDiv.addEventListener('click', (e)=>{  
                                                         let divProject = e.target.project;
                                                         currentProject = divProject;
-                                                        console.log(currentProject);
                                                         currentProject.populateTaskDivs();
                                                         });
         newProjectNavDiv.classList.add('navProjectDiv');
@@ -304,20 +283,13 @@ function populateTaskDivList(outerHTMLArray){
     let newDivArray = [];
     let newDiv;
     let length = outerHTMLArray.length;
-    // console.log('outerhtml array is');
-    // console.log(outerHTMLArray);
     let newDivWrapper = document.createElement('div');
-    console.log(`populating`);
     for (let i = 0; i< length; i++){
         newDiv = document.createElement('div');
         newDivWrapper.appendChild(newDiv);
         newDivWrapper.children[i].outerHTML = outerHTMLArray[i];
-        // console.log(`outerhtml is`, newDivWrapper.children[i].outerHTML);
-        // console.log(`the ${i}-th child of the wrapper is`, newDivWrapper.children[i]);
         newDivArray.push(newDivWrapper.children[i]);
-        console.log(`index ${i}`);
     }
-    // console.log(`the new div array is`, newDivArray);
     return newDivArray;    
 }
 
@@ -332,10 +304,7 @@ function createNewTask(){
     newTaskScreen.classList.remove('show');
     currentProject.addTaskObj(newTask);
     currentProject.addTaskDiv(newDiv); 
-    console.log(`currentproject taskdivlist is`, currentProject.taskDivList);
     localStorage.setItem('projectArray', JSON.stringify(projectArray));
-    console.log(`current project is`)
-    console.log(currentProject);
     listWrapper.appendChild(newDiv);
     listWrapper.removeChild(addNewTaskButton);
     listWrapper.appendChild(addNewTaskButton);
