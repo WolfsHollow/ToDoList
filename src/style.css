@@ -100,17 +100,28 @@
 
 .nameDiv,
 .descriptionDiv,
-.priorityDiv,
 .dateDiv,
 .dueDateDiv{
   color: white;
   font-size: 2rem;
-  height: 80px;
-  widtH: 500px;
-  border: 2px solid white;
+  height: 100px;
+  width: 500px;
+  border: 1px solid white;
   text-align: center;
   line-height: 80px;
 }
+
+.nameDiv{
+  font-size: 4rem;
+  overflow: hidden;
+}
+
+.priorityDiv{
+  height: 100%;
+  width: 20px;
+  background-color: grey;
+}
+
 
 .addButton{
   width: 40px;

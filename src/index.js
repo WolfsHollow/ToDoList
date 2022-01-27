@@ -4,11 +4,13 @@ import { eachDayOfIntervalWithOptions } from 'date-fns/fp';
 
 //To do list:
 // 1. resize task divs
-// 2. add a remove task button
-// 3. make tasks editable 
+// 3. make tasks editable
 // 4. sort by date/name (inbox/today/this week as well)
 // 6. Make it look nice
 // 7. be able to check items off
+// 5. focusout create projectnav
+// 2. fix to do list - to do list
+
 
 //#region Initialize global variables, DOM stuff, and buttons; set up nav
 
@@ -34,16 +36,19 @@ const addNewTaskButton = document.createElement('div');
 
 const projectWrapper = setupNav();
 
+let taskID = 0;
+
 //#endregion
 
 class Task{
-    constructor(name, description, dueDate, notes, priority){
+    constructor(name, description, dueDate, notes, priority, taskID){
         this.name = name;
         this.description = description;
         this.dueDate = dueDate;
         this.notes = notes;
         this.priority = priority;
         this.div = null;
+        this.taskID = taskID;
     }
 
     toJSON(){
@@ -124,17 +129,20 @@ else {
 
 function projectStringToObject(JSONArray){
     let length = JSONArray.length;
-    let taskLength, taskList, htmlList;    
+    let taskLength, taskList, htmlList, newDiv;    
     for (let i = 0; i < length; i++){
         htmlList =[];
         JSONArray[i] = Object.setPrototypeOf(JSONArray[i], Project.prototype); 
         taskList = JSONArray[i].taskObjList;
         taskLength = taskList.length;
+        JSONArray[i].taskDivList = [];
         for (let j = 0; j< taskLength; j++){
             taskList[j] = Object.setPrototypeOf(taskList[j], Task.prototype);
-            htmlList.push(taskList[j].div); // get html into an array to create new divs for
-        }        
-        JSONArray[i].taskDivList = populateTaskDivList(htmlList); // repopulate taskDivList for class object  
+            newDiv = addNewTaskDiv(taskList[j]);
+            console.log(newDiv);
+            JSONArray[i].addTaskDiv(newDiv); // repopulate taskDivList for class object  
+        }       
+        console.log(`the project task div list is`, JSONArray[i].taskDivList); 
     }
     return JSONArray;
 }
@@ -186,26 +194,83 @@ function addNewTaskDiv(classObject){ // creates div for task defined by input
     let descriptionDiv = document.createElement('div');
     let dueDateDiv = document.createElement('div');
     let priorityDiv = document.createElement('div');
+    let selectBtn = document.createElement('input');
 
     nameDiv.textContent = classObject.name;
     descriptionDiv.textContent = classObject.description;
     dueDateDiv.textContent = classObject.dueDate;
-    priorityDiv.textContent = classObject.priority;
+    priorityDiv.style.backgroundColor = getPriorityColor(classObject.priority);
+    selectBtn.setAttribute('type', 'checkbox');
+    selectBtn.onclick = deleteTask;
 
+    nameDiv.addEventListener('click', editDivValue);
+
+    selectBtn.classList.add('selectButton');
     newDivWrapper.classList.add('divWrapper');
     nameDiv.classList.add('nameDiv');
     descriptionDiv.classList.add('descriptionDiv');
     dueDateDiv.classList.add('dueDateDiv');
     priorityDiv.classList.add('priorityDiv');
  
+    newDivWrapper.append(selectBtn);
+    newDivWrapper.append(priorityDiv);
     newDivWrapper.append(nameDiv);
     newDivWrapper.append(descriptionDiv);
     newDivWrapper.append(dueDateDiv);
-    newDivWrapper.append(priorityDiv);
   
     classObject.projectNode = newDivWrapper;
 
     return newDivWrapper;
+}
+
+function editDivValue(e){
+    let currentText = e.target.innerText;
+    let newInput = document.createElement('input');
+    let taskList = currentProject.taskObjList;
+    let taskDivList = currentProject.taskDivList;
+    let parent = e.target.parentElement;
+    let index = currentProject.taskDivList.indexOf(parent);
+
+    newInput.autofocus = true;
+    newInput.classList.add('divInput');
+    newInput.addEventListener('focusout', (event)=>{
+            e.target.innerText = event.target.value;  
+            taskList[index].name = event.target.value;
+            localStorage.setItem('projectArray', JSON.stringify(projectArray));
+            });
+    e.target.innerText = '';
+    e.target.appendChild(newInput);
+    newInput.setAttribute('type','text');
+    newInput.value = currentText;    
+}
+
+function deleteTask(e){
+    let parent = e.target.parentElement;
+    parent.parentElement.removeChild(parent);
+    let taskList = currentProject.taskObjList;
+    let taskDivList = currentProject.taskDivList;
+    
+    let index = currentProject.taskDivList.indexOf(parent);
+    
+    if (index == -1){
+        console.log('it broke. the div being removed is not in the project');
+    }
+    taskList.splice(index,1);
+    taskDivList.splice(index,1);
+    localStorage.setItem('projectArray', JSON.stringify(projectArray));
+}
+
+function getPriorityColor(priority){ //returns stripe color for priority
+    switch(priority){
+        case 'Neutral':
+            return 'white';
+        case 'Low':
+            return 'green';
+        case 'Medium':
+            return 'yellow';
+        case 'High':
+            return 'red';
+    }
 }
 
 function addNewTask(){ // brings up form to create new task
@@ -221,6 +286,7 @@ function addProjectNav(target){ // brings up form to create new project and crea
         isFormActive = true;
         let newProjectForm = document.createElement('form');
         let newProjectInput = document.createElement('input');
+        newProjectInput.autofocus = true;
         newProjectForm.onsubmit = () => {createNewProject(newProjectInput.value);
                                         projectWrapper.removeChild(newProjectForm);
                                         projectWrapper.removeChild(addNewProjectButton);
@@ -279,27 +345,15 @@ function populateProjects(projectArray){
     }    
 }
 
-function populateTaskDivList(outerHTMLArray){
-    let newDivArray = [];
-    let newDiv;
-    let length = outerHTMLArray.length;
-    let newDivWrapper = document.createElement('div');
-    for (let i = 0; i< length; i++){
-        newDiv = document.createElement('div');
-        newDivWrapper.appendChild(newDiv);
-        newDivWrapper.children[i].outerHTML = outerHTMLArray[i];
-        newDivArray.push(newDivWrapper.children[i]);
-    }
-    return newDivArray;    
-}
-
 function createNewTask(){ 
     let newTask = new Task(newTaskName.value, 
                             newTaskDescription.value,
                             newTaskDate.value,
                             newTaskNotes.value,
-                            newTaskPriority.value);
-    let newDiv = addNewTaskDiv(newTask)
+                            newTaskPriority.value,
+                            taskID);
+    let newDiv = addNewTaskDiv(newTask);
+    taskID += 1;
     newTask.div = newDiv.outerHTML;
     newTaskScreen.classList.remove('show');
     currentProject.addTaskObj(newTask);
