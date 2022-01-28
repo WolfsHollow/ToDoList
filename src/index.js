@@ -3,14 +3,12 @@ import createClassDiv from './project.js';
 import { eachDayOfIntervalWithOptions } from 'date-fns/fp';
 
 //To do list:
-// 1. resize task divs
-// 3. make tasks editable
-// 4. sort by date/name (inbox/today/this week as well)
-// 6. Make it look nice
 // 7. be able to check items off
+// 1. resize task divs
+// 6. Make it look nice
+// 4. sort by date/name (inbox/today/this week as well)
 // 5. focusout create projectnav
 // 2. fix to do list - to do list
-
 
 //#region Initialize global variables, DOM stuff, and buttons; set up nav
 
@@ -33,10 +31,13 @@ const newTaskPriority = document.getElementById('priority');
 const addNewProjectButton = document.createElement('div');
 let isFormActive = false;
 const addNewTaskButton = document.createElement('div');
+addNewProjectButton.innerText = '+';
+addNewTaskButton.innerText = '+';
 
 const projectWrapper = setupNav();
 
 let taskID = 0;
+let isInputActive = false;
 
 //#endregion
 
@@ -195,28 +196,36 @@ function addNewTaskDiv(classObject){ // creates div for task defined by input
     let dueDateDiv = document.createElement('div');
     let priorityDiv = document.createElement('div');
     let selectBtn = document.createElement('input');
+    let deleteBtn = document.createElement('input');
 
     nameDiv.textContent = classObject.name;
     descriptionDiv.textContent = classObject.description;
     dueDateDiv.textContent = classObject.dueDate;
     priorityDiv.style.backgroundColor = getPriorityColor(classObject.priority);
     selectBtn.setAttribute('type', 'checkbox');
-    selectBtn.onclick = deleteTask;
+    selectBtn.onclick = toggleStrikethrough;
+    deleteBtn.setAttribute('type', 'checkbox');
+    deleteBtn.onclick = deleteTask;
 
     nameDiv.addEventListener('click', editDivValue);
-
+    descriptionDiv.addEventListener('click', editDivValue);
+    dueDateDiv.addEventListener('click', editDivValue);
+    priorityDiv.addEventListener('click', editDivValue);
+    
     selectBtn.classList.add('selectButton');
+    deleteBtn.classList.add('selectButton');
     newDivWrapper.classList.add('divWrapper');
     nameDiv.classList.add('nameDiv');
     descriptionDiv.classList.add('descriptionDiv');
     dueDateDiv.classList.add('dueDateDiv');
     priorityDiv.classList.add('priorityDiv');
  
-    newDivWrapper.append(selectBtn);
     newDivWrapper.append(priorityDiv);
+    newDivWrapper.append(selectBtn);
     newDivWrapper.append(nameDiv);
     newDivWrapper.append(descriptionDiv);
     newDivWrapper.append(dueDateDiv);
+    newDivWrapper.append(deleteBtn);
   
     classObject.projectNode = newDivWrapper;
 
@@ -224,24 +233,55 @@ function addNewTaskDiv(classObject){ // creates div for task defined by input
 }
 
 function editDivValue(e){
-    let currentText = e.target.innerText;
-    let newInput = document.createElement('input');
-    let taskList = currentProject.taskObjList;
-    let taskDivList = currentProject.taskDivList;
-    let parent = e.target.parentElement;
-    let index = currentProject.taskDivList.indexOf(parent);
+    if (!isInputActive){
+        let currentText = e.target.innerText;
+        let newInput = document.createElement('input');
+        let taskList = currentProject.taskObjList;
+        let divClass = e.target.classList[0];
 
-    newInput.autofocus = true;
-    newInput.classList.add('divInput');
-    newInput.addEventListener('focusout', (event)=>{
-            e.target.innerText = event.target.value;  
-            taskList[index].name = event.target.value;
-            localStorage.setItem('projectArray', JSON.stringify(projectArray));
-            });
-    e.target.innerText = '';
-    e.target.appendChild(newInput);
-    newInput.setAttribute('type','text');
-    newInput.value = currentText;    
+        if (divClass == 'dueDateDiv'){
+            newInput.setAttribute('type','date');
+        }
+        else{
+            newInput.setAttribute('type', 'text');
+        }
+        let taskDivList = currentProject.taskDivList;
+        let parent = e.target.parentElement;
+        let index = currentProject.taskDivList.indexOf(parent);
+        newInput.autofocus = true;
+        newInput.classList.add('divInput');
+        newInput.addEventListener('focusout', (event)=>{
+                e.target.innerText = event.target.value;
+                console.log(divClass);
+                switch (divClass){
+                    case 'nameDiv':
+                        taskList[index].name = event.target.value;
+                        break;
+                    case 'priorityDiv':
+                        taskList[index].priority = event.target.value;
+                        break;
+                    case 'descriptionDiv':
+                        taskList[index].description = event.target.value;
+                        break;
+                    case 'dueDateDiv':
+                        taskList[index].dueDate = event.target.value;
+                        break;
+                    case 'notesDiv':
+                        taskList[index].notes = event.target.value;
+                        break;
+                }  
+                localStorage.setItem('projectArray', JSON.stringify(projectArray));
+                isInputActive = false;
+                });
+        e.target.innerText = '';
+        e.target.appendChild(newInput);
+        isInputActive = true;
+        newInput.value = currentText;    
+    }
+}
+
+function toggleStrikethrough(){
+    console.log('strike');
 }
 
 function deleteTask(e){
