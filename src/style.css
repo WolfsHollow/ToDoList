@@ -114,10 +114,6 @@ body, html{
   /* border: 2px solid green; */
 }
 
-.divInput{
-  
-}
-
 .nameDiv,
 .descriptionDiv,
 .dateDiv,
@@ -182,12 +178,21 @@ body, html{
   justify-content: center;
   align-items: center;
   color: white;
-  font-size: 5rem;
+  font-size: 3rem;
   flex-direction: column;
 }
 
 fieldset{
   background-color: grey;
+  max-height: 600px;
+  max-width: 450px;
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  max-height: 500px;
 }
 
 .show {
@@ -219,6 +224,7 @@ input[type=text]:focus {
   font-size: 1rem;
   color: black;
   height: 50px;
+  margin-top: 10px;
   width: 350px;
 }
 
@@ -228,12 +234,37 @@ label {
 }
 
 legend {
-    background-color: #000;
-    color: #fff;
-    padding: 3px 6px;
-    font-size: 3rem;
+  background-color: #000;
+  color: #fff;    
+  font-size: 3rem;
+}
+
+#closeWrapper{
+  position: absolute;
+  /* float: right; */
+  height: 40px;
+  width: 40px;
+  border-radius: 50px;
+  right: 34px;
+  top: 17px;
+}
+
+.close {
+  position: relative;
+  top: -10px;
+  background: lightgray;
+  color: rgb(99, 84, 84);
+  border-radius: 50px;
+  font-size: 2rem;
+  font-weight: bold;
+  height: 40px;
+  width: 40px;
+}
+
+.close:hover{
+  color: white;
 }
 
 .inputGroup{
-  margin-left: 15%;   
+  height: 12%;
 }

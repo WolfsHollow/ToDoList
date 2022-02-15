@@ -6,13 +6,18 @@ const newTaskDescription = document.getElementById('description');
 const newTaskDate = document.getElementById('date');
 const newTaskNotes = document.getElementById('notes');
 const newTaskPriority = document.getElementById('priority');
+const closeButton = document.getElementById('close');
 let isInputActive = false;
 
 export const addNewTaskButton = document.createElement('div');
 
 addNewTaskButton.classList.add('addButton');
-addNewTaskButton.addEventListener('click', (x) => {addNewTask(x)});
+addNewTaskButton.addEventListener('click', (x) => {addNewTask(x);
+                                                   clearInfo()});
 addNewTaskButton.innerText = '+';
+
+closeButton.addEventListener('click', (x) => {addNewTask(x); 
+                                              clearInfo()});
 
 let taskID = 0;
 
@@ -80,6 +85,14 @@ export function addNewTaskDiv(classObject){ // creates div for task defined by i
     classObject.projectNode = newDivWrapper;
 
     return newDivWrapper;
+}
+
+function clearInfo(){
+    newTaskName.value = '';
+    newTaskDescription.value = '';
+    newTaskDate.value = '';
+    newTaskNotes.value = '';
+    newTaskPriority.value = '';
 }
 
 function editDivValue(e){
